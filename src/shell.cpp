@@ -9,7 +9,8 @@ void InteractiveShell::prompt() {
     string line;
     print("1.0.0 VIVASVAN INTERACTIVE SHELL");
     print("TYPE COMMANDS HERE");
-
+    
+    Lexer lexer;
     while (true) {
         cout << ">> ";
         std::getline(cin, line);
@@ -18,7 +19,7 @@ void InteractiveShell::prompt() {
             break;
         }     
 
-        Lexer lexer;
-        lexer.tokenize(line);
+        lexer.runInteractive(line);
+        lexer.printTokens();
     }
 }

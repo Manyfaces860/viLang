@@ -1,2 +1,13 @@
-a = "hello world"
-b = 7
+a="hello world"
+b!=7
+
+c = NOPE
+
+loop {
+    g = "hello night"
+    good = 34444444444.33
+}
+
+for i in range():
+    helloword()
+    print("a string")
