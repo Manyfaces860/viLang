@@ -31,12 +31,12 @@ using Object = std::variant<float, string>;
 
 class Token {
 
-  TokenType type;
-  string lexeme;
-  Object literal;
-  int line; 
-
   public: 
+    TokenType type;
+    string lexeme;
+    Object literal;
+    int line; 
+
     Token(TokenType type, string lexeme, Object literal, int line) 
     : type(type), lexeme(std::move(lexeme)), literal(std::move(literal)), line(line) {}
 

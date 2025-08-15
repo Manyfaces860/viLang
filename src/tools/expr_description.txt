@@ -1,0 +1,4 @@
+Binary   : Expr<T>* left, Token* operatorr, Expr<T>* right
+Grouping : Expr<T>* expression
+Literal  : Object* value
+Unary    : Token* operatorr, Expr<T>* right
