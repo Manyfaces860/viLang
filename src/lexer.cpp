@@ -79,6 +79,8 @@ void Lexer::scanToken() {
         case '+': addToken(TokenType::PLUS); break;
         case ';': addToken(TokenType::SEMICOLON); break;
         case '*': addToken(TokenType::STAR); break;
+        case '?': addToken(TokenType::QUESTION_MARK); break;
+        case ':': addToken(TokenType::COLON); break;
         case '!':
             match('=') ? addToken(TokenType::BANG_EQUAL) : addToken(TokenType::BANG);
             break;
@@ -186,7 +188,7 @@ char Lexer::peekNext() {
 }
 
 std::vector<Token> Lexer::getTokens() {
-    return tokens;
+    return this->tokens;
 }
 
 void Lexer::identifier() {

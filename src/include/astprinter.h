@@ -7,61 +7,26 @@
 using std::string;
 
 
-template <typename T>
-class AstPrinter : public Oprt<T> {
+class AstPrinter : public Oprt {
     public:
 
-        string print(Expr<T>* expr) {
-            return expr->accept(this);
-        }
+        string prints(Expr* expr);
         
-        T oprtBinary(Binary<T>* expr) override {
-            return parenthesize(expr->operatorr->lexeme,
-                        expr->left, expr->right);
-        }
+        Object oprtTernary(Ternary* expr) override;
 
-        T oprtGrouping(Grouping<T>* expr) override {
-            return parenthesize("group", expr->expression);
-        }
+        Object oprtBinary(Binary* expr) override;
 
-        T oprtLiteral(Literal<T>* expr) override {
-            if (std::holds_alternative<float>(*expr->value)) {
-                return std::to_string(std::get<float>(*expr->value));
-            } else if (std::holds_alternative<string>(*expr->value)) {
-                return std::get<string>(*expr->value);
-            }
-            return "";
-        }   
+        Object oprtGrouping(Grouping* expr) override;
 
-        T oprtUnary(Unary<T>* expr) override {
-            return parenthesize(expr->operatorr->lexeme, expr->right);
-        }
+        Object oprtLiteral(Literal* expr) override;
+
+        Object oprtUnary(Unary* expr) override;
 
     private:
-        string parenthesize(string name, Expr<T>* expr) {
-            string result;
+        string parenthesize(string name, Expr* expr);
 
-            result.append("(").append(name);
-            result.append(" ");
-            result.append(expr->accept(this));
-            result.append(")");
+        string parenthesize(string name, Expr* expr1, Expr* expr2);
 
-            return result;
-        }
-
-        string parenthesize(string name, Expr<T>* expr1, Expr<T>* expr2) {
-            string result;
-
-            result.append("(").append(name);
-            
-            result.append(" ");
-            result.append(expr1->accept(this));
-            result.append(" ");
-            result.append(expr2->accept(this));
-
-            result.append(")");
-
-            return result;
-        }
+        string parenthesize(Expr* expr1, Expr* expr2, Expr* expr3);
 
 };

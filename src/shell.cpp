@@ -1,8 +1,11 @@
+#include <vector>
 #include "include/util.h"
 #include "include/lexer.h"
 #include "include/shell.h"
+#include "include/parser.h"
+#include "include/astprinter.h"
 
-using std::cout, std::endl, std::cin;
+using std::cout, std::endl, std::cin, std::vector;
 
 
 void InteractiveShell::prompt() {
@@ -11,6 +14,8 @@ void InteractiveShell::prompt() {
     print("TYPE COMMANDS HERE");
     
     Lexer lexer;
+    Parser parser;
+    AstPrinter printer;
     while (true) {
         cout << ">> ";
         std::getline(cin, line);
@@ -20,6 +25,11 @@ void InteractiveShell::prompt() {
         }     
 
         lexer.runInteractive(line);
-        lexer.printTokens();
+        // lexer.printTokens();
+        vector<Token> tokens = lexer.getTokens();
+        Expr* expression = parser.runInteractive(tokens);
+
+        string value = printer.prints(expression);
+        print(value);
     }
 }

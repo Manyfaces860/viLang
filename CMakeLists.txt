@@ -6,6 +6,8 @@ set(SOURCE_FILES
     src/main.cpp 
     src/shell.cpp
     src/lexer.cpp
+    src/astprinter.cpp
+    src/parser.cpp
 )
 
 add_executable(vivasvan ${SOURCE_FILES})

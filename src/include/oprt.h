@@ -1,19 +1,20 @@
 #pragma once
 #include "expr.h"
+#include "token.h"
 
-template <typename T> class Binary;
-template <typename T> class Grouping;
-template <typename T> class Literal;
-template <typename T> class Unary;
+class Ternary;
+class Binary;
+class Grouping;
+class Literal;
+class Unary;
 
-
-template <typename T>
 class Oprt {
     public:
-        virtual T oprtBinary(Binary<T>* expr) = 0;
-        virtual T oprtGrouping(Grouping<T>* expr) = 0;
-        virtual T oprtLiteral(Literal<T>* expr) = 0;
-        virtual T oprtUnary(Unary<T>* expr) = 0;
+        virtual Object oprtTernary(Ternary* expr) = 0;
+        virtual Object oprtBinary(Binary* expr) = 0;
+        virtual Object oprtGrouping(Grouping* expr) = 0;
+        virtual Object oprtLiteral(Literal* expr) = 0;
+        virtual Object oprtUnary(Unary* expr) = 0;
         virtual ~Oprt() noexcept(false) = default;
 };
 

@@ -1,4 +1,5 @@
-Binary   : Expr<T>* left, Token* operatorr, Expr<T>* right
-Grouping : Expr<T>* expression
+Ternary  : Expr* left, Expr* middle, Expr* right
+Binary   : Expr* left, Token* operatorr, Expr* right
+Grouping : Expr* expression
 Literal  : Object* value
-Unary    : Token* operatorr, Expr<T>* right
+Unary    : Token* operatorr, Expr* right

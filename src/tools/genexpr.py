@@ -24,17 +24,19 @@ def main(baseClass, descriptionFile, outputFile, operator_file):
     with open(operator_file, "w") as file:
         print("#pragma once", file=file)
         print("#include \"expr.h\"", file=file)
+        print("#include \"token.h\"", file=file)
         print("", file=file)    
         
         for type, field in ft.items():
-            print(f"template <typename T> class {type};", file=file)
+            print(f"class {type};", file=file)
+            
+        print("", file=file)
         
-        print("template <typename T>", file=file)
         print("class Oprt {", file=file)
         print("    public:", file=file)
         
         for type, field in ft.items():
-            print(f"        virtual T oprt{type}({type}<T>* expr) = 0;", file=file)
+            print(f"        virtual Object oprt{type}({type}* expr) = 0;", file=file)
             
         print(f"        virtual ~Oprt() noexcept(false) = default;", file=file)
         print("};", file=file)
@@ -43,8 +45,7 @@ def main(baseClass, descriptionFile, outputFile, operator_file):
     
 def write_class(file, type, field: str, baseClass):
     
-    print("template <typename T>", file=file)
-    print(f"class {type} : public {baseClass}<T> " + '{', file=file)
+    print(f"class {type} : public {baseClass} " + '{', file=file)
     print("    public:", file=file)
     
     member_init = ""
@@ -60,7 +61,7 @@ def write_class(file, type, field: str, baseClass):
         
     print("", file=file)
     print(f"        {type}({field}) : {member_init} " + "{}", file=file)
-    print("        T accept(Oprt<T>* oprt) override {", file=file)
+    print("        Object accept(Oprt* oprt) override {", file=file)
     print(f"            return oprt->oprt{type}(this);", file=file)
     print("        }", file=file)
     print("};", file=file)

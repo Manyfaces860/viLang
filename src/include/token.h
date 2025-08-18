@@ -10,6 +10,7 @@ enum class TokenType {
   // Single-character tokens.
   LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,
   COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR, COLON,
+  QUESTION_MARK,
 
   // One or two character tokens.
   BANG, BANG_EQUAL,
@@ -27,7 +28,7 @@ enum class TokenType {
   ENDOFFILE
 };
 
-using Object = std::variant<float, string>;
+using Object = std::variant<float, string, bool, nullptr_t>;
 
 class Token {
 
@@ -67,6 +68,7 @@ class Token {
         case TokenType::GREATER_EQUAL: return "GREATER_EQUAL";
         case TokenType::LESS: return "LESS";
         case TokenType::LESS_EQUAL: return "LESS_EQUAL";
+        case TokenType::QUESTION_MARK: return "QUESTION_MARK";
         case TokenType::IDENTIFIER: return "IDENTIFIER";
         case TokenType::STRING: return "STRING";
         case TokenType::NUMBER: return "NUMBER";
