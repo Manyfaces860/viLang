@@ -22,6 +22,10 @@ class AstPrinter : public Oprt {
 
         Object oprtUnary(Unary* expr) override;
 
+        Object oprtAssign(Assign* stmt) override;
+
+        Object oprtVariable(Variable* expr) override;
+
     private:
         string parenthesize(string name, Expr* expr);
 

@@ -10,7 +10,7 @@ enum class TokenType {
   // Single-character tokens.
   LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,
   COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR, COLON,
-  QUESTION_MARK,
+  QUESTION_MARK, NEW_LINE,
 
   // One or two character tokens.
   BANG, BANG_EQUAL,
@@ -23,7 +23,7 @@ enum class TokenType {
 
   // Keywords.
   AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NOPE, OR,
-  PRINT, RETURN, SUPER, THIS, TRUE, WHILE,
+  PRINT, RETURN, SUPER, THIS, TRUE, WHILE, IN, IS,
 
   ENDOFFILE
 };
@@ -42,7 +42,7 @@ class Token {
     : type(type), lexeme(std::move(lexeme)), literal(std::move(literal)), line(line) {}
 
     string toString() const {
-        return tokenTypeToString(type) + " " + lexeme + " " + objectToString(literal);
+      return tokenTypeToString(type) + " " + ('\n' == lexeme[0] ? "\\n" : lexeme) + " " + objectToString(literal) + " " + std::to_string(line);
     }
 
   private:
@@ -69,6 +69,7 @@ class Token {
         case TokenType::LESS: return "LESS";
         case TokenType::LESS_EQUAL: return "LESS_EQUAL";
         case TokenType::QUESTION_MARK: return "QUESTION_MARK";
+        case TokenType::NEW_LINE: return "NEW_LINE";
         case TokenType::IDENTIFIER: return "IDENTIFIER";
         case TokenType::STRING: return "STRING";
         case TokenType::NUMBER: return "NUMBER";
@@ -87,6 +88,8 @@ class Token {
         case TokenType::THIS: return "THIS";
         case TokenType::TRUE: return "TRUE";
         case TokenType::WHILE: return "WHILE";
+        case TokenType::IN: return "IN";
+        case TokenType::IS: return "IS";
         case TokenType::ENDOFFILE: return "ENDOFFILE";
         default: return "UNKNOWN";
       }

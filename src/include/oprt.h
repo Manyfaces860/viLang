@@ -1,5 +1,4 @@
 #pragma once
-#include "expr.h"
 #include "token.h"
 
 class Ternary;
@@ -7,6 +6,8 @@ class Binary;
 class Grouping;
 class Literal;
 class Unary;
+class Variable;
+class Assign;
 
 class Oprt {
     public:
@@ -15,6 +16,8 @@ class Oprt {
         virtual Object oprtGrouping(Grouping* expr) = 0;
         virtual Object oprtLiteral(Literal* expr) = 0;
         virtual Object oprtUnary(Unary* expr) = 0;
+        virtual Object oprtVariable(Variable* expr) = 0;
+        virtual Object oprtAssign(Assign* expr) = 0;
         virtual ~Oprt() noexcept(false) = default;
 };
 

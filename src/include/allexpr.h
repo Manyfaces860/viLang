@@ -1,6 +1,7 @@
 #pragma once
 #include "expr.h"
 #include "token.h"
+#include "oprt.h"
 
 class Ternary : public Expr {
     public:
@@ -54,6 +55,27 @@ class Unary : public Expr {
         Unary(Token* operatorr, Expr* right) : operatorr(operatorr), right(right) {}
         Object accept(Oprt* oprt) override {
             return oprt->oprtUnary(this);
+        }
+};
+
+class Variable : public Expr {
+    public:
+        Token* name;
+
+        Variable(Token* name) : name(name) {}
+        Object accept(Oprt* oprt) override {
+            return oprt->oprtVariable(this);
+        }
+};
+
+class Assign : public Expr {
+    public:
+        Token* name;
+        Expr* value;
+
+        Assign(Token* name, Expr* value) : name(name), value(value) {}
+        Object accept(Oprt* oprt) override {
+            return oprt->oprtAssign(this);
         }
 };
 

@@ -3,3 +3,5 @@ Binary   : Expr* left, Token* operatorr, Expr* right
 Grouping : Expr* expression
 Literal  : Object* value
 Unary    : Token* operatorr, Expr* right
+Variable : Token* name
+Assign   : Token* name, Expr* value

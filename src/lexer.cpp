@@ -27,6 +27,8 @@ std::unordered_map<string, TokenType> Lexer::keywords = {
     {"this",   TokenType::THIS},
     {"true",   TokenType::TRUE},
     {"while",  TokenType::WHILE},
+    {"in",     TokenType::IN},
+    {"is",     TokenType::IS}
 };
 
 Lexer::Lexer(string source) {
@@ -107,6 +109,7 @@ void Lexer::scanToken() {
         case '\t':
             break;
         case '\n':
+            addToken(TokenType::NEW_LINE);
             line++;
             break;
         case '"':

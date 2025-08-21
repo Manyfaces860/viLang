@@ -7,6 +7,8 @@
 #include "include/allexpr.h"
 #include "include/astprinter.h"
 #include "include/parser.h"
+#include "include/interpreter.h"
+#include "include/stmt.h"
 
 using std::cout, std::endl, std::cin;
 using std::string, std::vector;
@@ -27,11 +29,10 @@ int main(int argc, char* argv[]) {
     // print("=========================================================");
     vector<Token> tokens = lexer.getTokens();
     Parser parser(tokens);
-    Expr* expression = parser.parse();
+    vector<Stmt*> statements = parser.parse();
 
-    AstPrinter printer;
-    string value = printer.prints(expression);
-    print(value);
+    Interpreter interpreter(statements);
+    interpreter.interpret();
 
     return 0;
 }

@@ -1,30 +1,39 @@
 #pragma once
 #include <exception>
 #include <string>
-// fix inheriting from runtime error class std::runtime_error
-class BaseException : public std::exception {
+
+class CompileError : public std::exception {
 
     std::string msg;
     
     public:
-        explicit BaseException(std::string msg) : msg(std::move(msg)) {}
+        explicit CompileError(std::string msg) : msg(std::move(msg)) {}
         
         const char* what() const noexcept override {
             return msg.c_str();
         }
 };
 
-class LexerException : public std::runtime_error{
+// compile time errors
+class LexerError : public CompileError{
     public:
-        explicit LexerException(const std::string& msg) : std::runtime_error("LexerException: " + msg) {}
+        explicit LexerError(const std::string& msg, const Token& token) : CompileError(msg + " at line " + std::to_string(token.line) + "with token " + token.lexeme) {}
 };
 
-class ParserException : public std::runtime_error {
+class ParserError : public CompileError {
     public:
-        explicit ParserException(const std::string& msg) : std::runtime_error("ParserException: " + msg) {}
+        explicit ParserError(const std::string& msg, const Token& token) : CompileError(msg + " at line " + std::to_string(token.line) + "with token " + token.lexeme) {}
+        explicit ParserError(const std::string& msg) : CompileError(msg) {}
 };
 
-class AstPrinterException : public std::runtime_error {
+class AstPrinterError : public CompileError {
     public:
-        explicit AstPrinterException(const std::string& msg) : std::runtime_error("AstPrinterException: " + msg) {}
+        explicit AstPrinterError(const std::string& msg) : CompileError(msg) {}
+};
+
+
+// runtime errors
+class RuntimeError : public std::runtime_error {
+    public:
+        explicit RuntimeError(const std::string& msg, const Token& token) : std::runtime_error(msg + " at line " + std::to_string(token.line) + "with token " + token.lexeme) {}
 };

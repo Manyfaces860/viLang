@@ -4,6 +4,9 @@
 #include "include/shell.h"
 #include "include/parser.h"
 #include "include/astprinter.h"
+#include "include/interpreter.h"
+#include "include/stmt.h"
+
 
 using std::cout, std::endl, std::cin, std::vector;
 
@@ -15,7 +18,8 @@ void InteractiveShell::prompt() {
     
     Lexer lexer;
     Parser parser;
-    AstPrinter printer;
+    // AstPrinter printer;
+    Interpreter interpreter;
     while (true) {
         cout << ">> ";
         std::getline(cin, line);
@@ -27,9 +31,8 @@ void InteractiveShell::prompt() {
         lexer.runInteractive(line);
         // lexer.printTokens();
         vector<Token> tokens = lexer.getTokens();
-        Expr* expression = parser.runInteractive(tokens);
+        vector<Stmt*> statements = parser.runInteractive(tokens);
 
-        string value = printer.prints(expression);
-        print(value);
+        interpreter.runInteractive(statements[0]);
     }
 }
