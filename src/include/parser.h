@@ -10,6 +10,7 @@ class Parser {
     public:
         vector<Token> tokens;
         int current = 0;
+        int indent = 0;
 
         Parser(vector<Token> tokens);
         Parser();
@@ -21,7 +22,11 @@ class Parser {
     private:
         Expr* assignment();
         void synchronize();
+        Expr* logicOr();
+        Expr* logicAnd();
         Stmt* printStatement();
+        Stmt* blockStatement();
+        Stmt* ifStatement();
         Stmt* expressionStatement();
         Expr* expression();
         Expr* equality();
@@ -42,5 +47,6 @@ class Parser {
         Token* previous();
         bool isOnNextLine();
         vector<Stmt*> block();
+        bool consumeSpacesAndNewLinesForTop();
 
 };

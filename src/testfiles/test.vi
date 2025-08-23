@@ -1,13 +1,21 @@
-print("hello world")
-print("oh boy it works")
-print(5.4 == 5.40)
-a = "helo"
-print(a)
-a = 433333
-b = 3
-print(a + b)
-b = a
-print(b)
-a = "hello"
-s = "world"
-print(a + s)
+    print(5.4 == 5.40)      
+
+if 1.000:    
+    if "":
+        print("double")
+    else:
+        if true or false:
+            print("single")
+        elif true == true:
+            print("triple condition elif")
+            if false:
+                print("kamaal hogaya")
+            elif "Kr":
+                print("hahahahahah")
+        else:
+            print("double triple")
+else:
+    print(4+5)
+
+print(true and true or false or true or false or false or true and false and true) 
+print("end" and "")

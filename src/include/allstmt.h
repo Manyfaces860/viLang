@@ -44,3 +44,16 @@ class Block : public Stmt {
         }
 };
 
+class If : public Stmt {
+    public:
+        Expr* condition;
+        Stmt* thenBranch;
+        std::vector<std::pair<Expr*, Stmt*>> elifBranches;
+        Stmt* elseBranch;
+
+        If(Expr* condition, Stmt* thenBranch, std::vector<std::pair<Expr*, Stmt*>> elifBranches, Stmt* elseBranch) : condition(condition), thenBranch(thenBranch), elifBranches(elifBranches), elseBranch(elseBranch) {}
+        Object accept(OprtStmt* oprt) override {
+            return oprt->oprtIf(this);
+        }
+};
+

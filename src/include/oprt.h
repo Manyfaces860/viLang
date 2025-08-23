@@ -8,6 +8,7 @@ class Literal;
 class Unary;
 class Variable;
 class Assign;
+class Logical;
 
 class Oprt {
     public:
@@ -18,6 +19,7 @@ class Oprt {
         virtual Object oprtUnary(Unary* expr) = 0;
         virtual Object oprtVariable(Variable* expr) = 0;
         virtual Object oprtAssign(Assign* expr) = 0;
+        virtual Object oprtLogical(Logical* expr) = 0;
         virtual ~Oprt() noexcept(false) = default;
 };
 

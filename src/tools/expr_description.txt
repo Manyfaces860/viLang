@@ -1,7 +1,8 @@
-Ternary  : Expr* left, Expr* middle, Expr* right
-Binary   : Expr* left, Token* operatorr, Expr* right
-Grouping : Expr* expression
-Literal  : Object* value
-Unary    : Token* operatorr, Expr* right
-Variable : Token* name
-Assign   : Token* name, Expr* value
+Ternary  ## Expr* left|| Expr* middle|| Expr* right
+Binary   ## Expr* left|| Token* operatorr|| Expr* right
+Grouping ## Expr* expression
+Literal  ## Object* value
+Unary    ## Token* operatorr|| Expr* right
+Variable ## Token* name
+Assign   ## Token* name|| Expr* value
+Logical  ## Expr* left|| Token* operatorr|| Expr* right

@@ -15,6 +15,7 @@ class Lexer {
         int current = 0;
         int line = 1;
         int start = 0;
+        bool hit = false;
 
         static std::unordered_map<string, TokenType> keywords;
 

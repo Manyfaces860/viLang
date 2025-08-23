@@ -6,7 +6,7 @@ def main(baseClass, descriptionFile, outputFile, operator_file, astFile):
         for line in file:
             line = line.strip()
 
-            type_name, fields = line.split(':')
+            type_name, fields = line.split('##')
             type_name = type_name.strip()
             fields = fields.strip()
             
@@ -85,9 +85,9 @@ def write_class(file, type, field: str, baseClass):
     print("    public:", file=file)
     
     member_init = ""
-    last = len(field.split(", "))-1
+    last = len(field.split("|| "))-1
 
-    for i, f in enumerate(field.split(", ")):
+    for i, f in enumerate(field.split("|| ")):
         print(f"        {f};", file=file)
         _, name = f.split(" ")
         if i == last:
@@ -96,7 +96,7 @@ def write_class(file, type, field: str, baseClass):
             member_init += f"{name}({name}), "
         
     print("", file=file)
-    print(f"        {type}({field}) : {member_init} " + "{}", file=file)
+    print(f"        {type}({field.replace('|| ', ', ')}) : {member_init} " + "{}", file=file)
     if baseClass == "Expr":
         print(f"        Object accept(Oprt* oprt) override " + "{", file=file)
     else:

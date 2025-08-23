@@ -26,8 +26,8 @@ int main(int argc, char* argv[]) {
     Lexer lexer(filename);
     lexer.readygo();
     // lexer.printTokens();
-    // print("=========================================================");
     vector<Token> tokens = lexer.getTokens();
+
     Parser parser(tokens);
     vector<Stmt*> statements = parser.parse();
 

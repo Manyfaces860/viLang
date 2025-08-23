@@ -49,7 +49,40 @@ Object Interpreter::oprtAssign(Assign* expr) {
 }
 
 Object Interpreter::oprtBlock(Block* stmt) {
-    return nullptr; // wait for function implementation
+
+    for (Stmt* statement : stmt->statements) {
+        execute(statement);
+    }
+
+    return nullptr;
+}
+
+Object Interpreter::oprtIf(If* stmt) {
+    Object condition = evaluate(stmt->condition);
+    if (isTruthy(condition)) {
+        execute(stmt->thenBranch);
+        return nullptr;
+    }
+    for (auto& [k, v] : stmt->elifBranches) {
+        Object elifCondition = evaluate(k);
+        if (isTruthy(elifCondition)) {
+            execute(v);
+            return nullptr;
+        }
+    }
+    if (stmt->elseBranch != nullptr) execute(stmt->elseBranch);
+    return nullptr;
+}
+
+Object Interpreter::oprtLogical(Logical* expr) {
+    Object left = evaluate(expr->left);
+    if (expr->operatorr->type == TokenType::AND) {
+        if (!isTruthy(left)) return isTruthy(left);
+    } 
+    else {
+        if (isTruthy(left)) return isTruthy(left);
+    }
+    return isTruthy(evaluate(expr->right));
 }
 
 Object Interpreter::oprtPrint(Print* stmt) {
@@ -136,7 +169,7 @@ Object Interpreter::oprtUnary(Unary* expr) {
     }
 }
 
-bool Interpreter::isTruthy(Object& obj) {
+bool Interpreter::isTruthy(const Object& obj) {
     if (isFloat(obj)) return getFloat(obj) != 0;
     if (isString(obj)) return getString(obj) != "";
     if (isBool(obj)) return getBool(obj);

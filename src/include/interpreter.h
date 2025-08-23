@@ -48,10 +48,14 @@ class Interpreter : public Oprt, public OprtStmt {
 
         Object oprtBlock(Block* stmt) override;
 
+        Object oprtIf(If* stmt) override;
+
+        Object oprtLogical(Logical* expr) override;
+
     private:
 
         Object evaluate(Expr* expr);
-        bool isTruthy(Object& obj);
+        bool isTruthy(const Object& obj);
         bool isEqual(Object& left, Object& right);
         void checkNumberOperands(Token& operatorr, Object& left, Object& right);
         void checkNumberOperands(Token& operatorr, Object& right);

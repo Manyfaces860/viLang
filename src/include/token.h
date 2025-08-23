@@ -10,7 +10,7 @@ enum class TokenType {
   // Single-character tokens.
   LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,
   COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR, COLON,
-  QUESTION_MARK, NEW_LINE,
+  QUESTION_MARK, NEW_LINE, SPACE,
 
   // One or two character tokens.
   BANG, BANG_EQUAL,
@@ -22,7 +22,7 @@ enum class TokenType {
   IDENTIFIER, STRING, NUMBER,
 
   // Keywords.
-  AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NOPE, OR,
+  AND, CLASS, ELSE, ELIF, FALSE, FUN, FOR, IF, NOPE, OR,
   PRINT, RETURN, SUPER, THIS, TRUE, WHILE, IN, IS,
 
   ENDOFFILE
@@ -70,12 +70,14 @@ class Token {
         case TokenType::LESS_EQUAL: return "LESS_EQUAL";
         case TokenType::QUESTION_MARK: return "QUESTION_MARK";
         case TokenType::NEW_LINE: return "NEW_LINE";
+        case TokenType::SPACE: return "SPACE";
         case TokenType::IDENTIFIER: return "IDENTIFIER";
         case TokenType::STRING: return "STRING";
         case TokenType::NUMBER: return "NUMBER";
         case TokenType::AND: return "AND";
         case TokenType::CLASS: return "CLASS";
         case TokenType::ELSE: return "ELSE";
+        case TokenType::ELIF: return "ELIF";
         case TokenType::FALSE: return "FALSE";
         case TokenType::FUN: return "FUN";
         case TokenType::FOR: return "FOR";

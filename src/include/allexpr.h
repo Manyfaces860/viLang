@@ -79,3 +79,15 @@ class Assign : public Expr {
         }
 };
 
+class Logical : public Expr {
+    public:
+        Expr* left;
+        Token* operatorr;
+        Expr* right;
+
+        Logical(Expr* left, Token* operatorr, Expr* right) : left(left), operatorr(operatorr), right(right) {}
+        Object accept(Oprt* oprt) override {
+            return oprt->oprtLogical(this);
+        }
+};
+

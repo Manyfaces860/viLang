@@ -1,5 +1,6 @@
 
 #include <vector>
+#include <utility>
 #include "include/token.h"
 #include "include/allexpr.h"
 #include "include/parser.h"
@@ -17,7 +18,9 @@ Parser::Parser() {}
 
 vector<Stmt*> Parser::parse() {
     vector<Stmt*> statements;
-    while (!atEnd()) statements.push_back(declaration());
+    while (consumeSpacesAndNewLinesForTop() && !atEnd()) {
+        statements.push_back(declaration());
+    }
 
     return statements;
 }
@@ -43,7 +46,7 @@ void Parser::synchronize() {
 }
 
 Expr* Parser::assignment() { 
-    Expr* expr = equality();
+    Expr* expr = logicOr();
 
     if (match(TokenType::EQUAL)) {
         Token* equals = previous();
@@ -59,14 +62,89 @@ Expr* Parser::assignment() {
     return expr;
 }
 
+Expr* Parser::logicOr() {
+    Expr* left = logicAnd();
+
+    while (match(TokenType::OR)) {
+        Token* operatorr = previous();
+        Expr* right = logicAnd();
+        left = new Logical(left, operatorr, right);
+    }
+
+    return left;
+}
+
+Expr* Parser::logicAnd() {
+    Expr* left = equality();
+
+    while (match(TokenType::AND)) {
+        Token* operatorr = previous();
+        Expr* right = equality();
+        left = new Logical(left, operatorr, right);
+    }
+
+    return left;
+}
+
 Stmt* Parser::statement() {
     if (match(TokenType::PRINT)) return printStatement();
-    
+    if (match(TokenType::IF)) return ifStatement();
+
     return expressionStatement();
 }
 
+Stmt* Parser::ifStatement() {
+    Expr* condition = expression();
+    consume(TokenType::COLON, "Expected ':' after condition");
+    Stmt* thenBranch = blockStatement();
+    
+    bool indentMatch = false;
+    std::vector<std::pair<Expr*, Stmt*>> elifBranches;
+    if (this->indent == indentation(tokens, current)) {
+        do {
+            consumeSpaces(tokens, current);
+            indentMatch = true;
+            if (match(TokenType::ELIF)) {
+                Expr* elCondition = expression();
+                consume(TokenType::COLON, "Expected ':' after elif");
+                Stmt* elBranch = blockStatement();
+                elifBranches.push_back({elCondition, elBranch});
+            } else break;
+        }
+        while (this->indent == indentation(tokens, current));
+    }
+    
+    Stmt* elseBranch = nullptr;
+    if (indentMatch || this->indent == indentation(tokens, current)) {
+        if (match(TokenType::ELSE)) {
+            consume(TokenType::COLON, "Expected ':' after else");
+            elseBranch = blockStatement();
+        }
+    }
+    return new If(condition, thenBranch, elifBranches, elseBranch);
+}
+
+Stmt* Parser::blockStatement() {
+    vector<Stmt*> statements = block();
+    return new Block(statements);
+}
+
 vector<Stmt*> Parser::block() {
+    int previous = this->indent;
+
+    int count = indentation(tokens, current);
+    this->indent = count > this->indent ? count : throw ParserError("indentation error", *peek());
+    
+    int spaces = this->indent;
     vector<Stmt*> statements;
+
+    do {
+        consumeSpaces(tokens, current);
+        statements.push_back(declaration());
+        spaces = indentation(tokens, current);
+    } while (this->indent == spaces);
+
+    this->indent = previous;
     return statements;
 }
 
@@ -229,5 +307,13 @@ Token* Parser::previous() {
 bool Parser::isOnNextLine() {
     if (peek()->type != TokenType::NEW_LINE && peek()->type != TokenType::ENDOFFILE) throw ParserError("Expected newline or end of file or statements should be seperated by newline.", *peek());
     consume(TokenType::NEW_LINE);
+    return true;
+}
+
+bool Parser::consumeSpacesAndNewLinesForTop() {
+    if (this->indent == 0) {
+        clearNewLines(tokens, current);
+        consumeSpaces(tokens, current);
+    }
     return true;
 }

@@ -15,6 +15,7 @@ std::unordered_map<string, TokenType> Lexer::keywords = {
     {"and",    TokenType::AND},
     {"class",  TokenType::CLASS},
     {"else",   TokenType::ELSE},
+    {"elif",   TokenType::ELIF},
     {"false",  TokenType::FALSE},
     {"for",    TokenType::FOR},
     {"fun",    TokenType::FUN},
@@ -55,7 +56,7 @@ void Lexer::tokenize() {
         start = current;
         scanToken();
     }
-
+    while (tokens.back().type == TokenType::SPACE) tokens.pop_back();
     Lexer::tokens.push_back(Token(TokenType::ENDOFFILE, "", "", line));
 }       
 
@@ -105,11 +106,13 @@ void Lexer::scanToken() {
             }
             break;
         case ' ':
+            if (!hit) addToken(TokenType::SPACE);
         case '\r':
         case '\t':
             break;
         case '\n':
             addToken(TokenType::NEW_LINE);
+            hit = false;
             line++;
             break;
         case '"':
@@ -123,7 +126,7 @@ void Lexer::scanToken() {
                 identifier();
             }
             else {
-                std::runtime_error("Unexpected character");
+                LexerError("Unexpected character '" + std::to_string(c) + "' at " + std::to_string(line) + ".");
             }
             break;
 
@@ -131,6 +134,7 @@ void Lexer::scanToken() {
 }
 
 void Lexer::addToken(TokenType type) {
+    if (type != TokenType::SPACE && type != TokenType::NEW_LINE) hit = true;  
     addToken(type, "");
 }
 
@@ -153,13 +157,14 @@ char Lexer::peek() {
 }
 
 void Lexer::stringLiterals() {
+    int currentLine = line;
     while (peek() != '"' && !atEnd()) {
         if (peek() == '\n') line++;
         next();
     }
 
     if (atEnd()) {
-        std::runtime_error("Unterminated string");
+        throw LexerError("Unterminated string at " + std::to_string(currentLine) + ".");
         return;
     }
 
