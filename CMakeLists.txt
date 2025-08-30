@@ -9,6 +9,7 @@ set(SOURCE_FILES
     # src/astprinter.cpp
     src/parser.cpp
     src/interpreter.cpp
+    src/callables.cpp
 )
 
 add_executable(vivasvan ${SOURCE_FILES})

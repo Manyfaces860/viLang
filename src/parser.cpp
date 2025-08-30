@@ -32,6 +32,9 @@ Stmt* Parser::declaration() {
             if (Assign* assignExpr = dynamic_cast<Assign*>(expr)) {
                 return new Var(assignExpr->name, assignExpr->value);
             }
+            if (Call* callExpr = dynamic_cast<Call*>(expr)) {
+                return new Wcall(callExpr);
+            }
         }
         return statement();
     } catch (ParserError error) {
@@ -55,6 +58,7 @@ Expr* Parser::assignment() {
         if (Variable* identifier = dynamic_cast<Variable*>(expr)) {
             Token* name = identifier->name;
             if (isOnNextLine()) return new Assign(name, value);
+            else throw ParserError("Expected newline or end of file or statements should be seperated by newline.", *peek());
         }
         throw ParserError("Invalid assignment target.", *equals);
     }
@@ -89,6 +93,9 @@ Expr* Parser::logicAnd() {
 Stmt* Parser::statement() {
     if (match(TokenType::PRINT)) return printStatement();
     if (match(TokenType::IF)) return ifStatement();
+    if (match(TokenType::WHILE)) return whileStatement();
+    if (match(TokenType::DEF)) return functionStatement("function");
+    if (match(TokenType::RETURN)) return returnStatement();
 
     return expressionStatement();
 }
@@ -98,12 +105,10 @@ Stmt* Parser::ifStatement() {
     consume(TokenType::COLON, "Expected ':' after condition");
     Stmt* thenBranch = blockStatement();
     
-    bool indentMatch = false;
     std::vector<std::pair<Expr*, Stmt*>> elifBranches;
-    if (this->indent == indentation(tokens, current)) {
+    if (this->indent == this->nextIndent) {
         do {
             consumeSpaces(tokens, current);
-            indentMatch = true;
             if (match(TokenType::ELIF)) {
                 Expr* elCondition = expression();
                 consume(TokenType::COLON, "Expected ':' after elif");
@@ -111,17 +116,26 @@ Stmt* Parser::ifStatement() {
                 elifBranches.push_back({elCondition, elBranch});
             } else break;
         }
-        while (this->indent == indentation(tokens, current));
+        while (this->indent == this->nextIndent);
     }
     
     Stmt* elseBranch = nullptr;
-    if (indentMatch || this->indent == indentation(tokens, current)) {
+    if (this->indent == this->nextIndent) {
         if (match(TokenType::ELSE)) {
             consume(TokenType::COLON, "Expected ':' after else");
             elseBranch = blockStatement();
         }
     }
+    this->sameLevelBlockExit = true;
     return new If(condition, thenBranch, elifBranches, elseBranch);
+}
+
+Stmt* Parser::whileStatement() {
+    Expr* condition = expression();
+    consume(TokenType::COLON, "Expected ':' after condition");
+    Stmt* body = blockStatement();
+
+    return new While(condition, body);
 }
 
 Stmt* Parser::blockStatement() {
@@ -132,17 +146,16 @@ Stmt* Parser::blockStatement() {
 vector<Stmt*> Parser::block() {
     int previous = this->indent;
 
-    int count = indentation(tokens, current);
-    this->indent = count > this->indent ? count : throw ParserError("indentation error", *peek());
+    this->nextIndent = indentation(tokens, current);
+    this->indent = this->nextIndent > this->indent ? this->nextIndent : throw ParserError("indentation error", *peek());
     
-    int spaces = this->indent;
     vector<Stmt*> statements;
-
     do {
         consumeSpaces(tokens, current);
         statements.push_back(declaration());
-        spaces = indentation(tokens, current);
-    } while (this->indent == spaces);
+        this->nextIndent = this->sameLevelBlockExit ? this->nextIndent : indentation(tokens, current);
+        this->sameLevelBlockExit = false;
+    } while (this->indent == this->nextIndent);
 
     this->indent = previous;
     return statements;
@@ -153,13 +166,45 @@ Stmt* Parser::printStatement() {
         Expr* value = expression();
         consume(TokenType::RIGHT_PAREN, "Expected ')' after expression.");
         if (isOnNextLine()) return new Print(value); 
+        else throw ParserError("Expected newline or end of file or statements should be seperated by newline.", *peek());
     }
     throw ParserError("Expected '(' after 'print'.", *peek());
+}
+
+Stmt* Parser::functionStatement(string kind) {
+    Token* name = consume(TokenType::IDENTIFIER, "Expected " + kind + " name");
+    consume(TokenType::LEFT_PAREN, "Expected '(' after " + kind + " name");
+    vector<Token*> params;
+
+    if (!check(TokenType::RIGHT_PAREN)) {
+        do {
+            if (params.size() >= 255) {
+                error("Can't have more than 255 parameters.", peek());
+            }
+            params.push_back(consume(TokenType::IDENTIFIER, "Expected parameter name"));
+        } while (match(TokenType::COMMA));
+    }
+
+    consume(TokenType::RIGHT_PAREN, "Expected ')' after parameters");
+    consume(TokenType::COLON, "Expected ':' after parameter declaration");
+    Stmt* body = blockStatement();
+
+    return new Function(name, params, body);
+}
+
+Stmt* Parser::returnStatement() {
+    Token* keyword = previous();
+    if (isOnNextLine()) return new Return(keyword, new Literal(new Object(nullptr)));
+
+    Expr* value = expression();
+    if (isOnNextLine()) return new Return(keyword, value);
+    return nullptr;
 }
 
 Stmt* Parser::expressionStatement() {
     Expr* expr = expression();
     if (isOnNextLine()) return new Expression(expr);
+    else throw ParserError("Expected newline or end of file or statements should be seperated by newline.", *peek());
     return nullptr;
 }
 
@@ -227,7 +272,36 @@ Expr* Parser::unary() {
         Expr* right = unary();
         return new Unary(operatorr, right);
     }
-    return primary();
+
+    return call();
+}
+
+Expr* Parser::call() {
+    Expr* expr = primary();
+
+    while (true) { 
+        if (match(TokenType::LEFT_PAREN)) {
+            expr = finishCall(expr);
+        } else {
+            break;
+        }  
+    }
+    return expr;
+}
+
+Expr* Parser::finishCall(Expr* callee) {
+    vector<Expr*> arguments;
+    if (!check(TokenType::RIGHT_PAREN)) {
+        do {
+            if (arguments.size() >= 255) {
+                error("Can't have more than 255 arguments.", peek());
+            }
+            arguments.push_back(expression());
+        } while (match(TokenType::COMMA));
+    }
+
+    Token* paren = consume(TokenType::RIGHT_PAREN, "Expected ')' after arguments");
+    return new Call(callee, paren, arguments);
 }
 
 Expr* Parser::primary() {
@@ -305,7 +379,7 @@ Token* Parser::previous() {
 }
 
 bool Parser::isOnNextLine() {
-    if (peek()->type != TokenType::NEW_LINE && peek()->type != TokenType::ENDOFFILE) throw ParserError("Expected newline or end of file or statements should be seperated by newline.", *peek());
+    if (peek()->type != TokenType::NEW_LINE && peek()->type != TokenType::ENDOFFILE) return false;
     consume(TokenType::NEW_LINE);
     return true;
 }
@@ -316,4 +390,8 @@ bool Parser::consumeSpacesAndNewLinesForTop() {
         consumeSpaces(tokens, current);
     }
     return true;
+}
+
+void Parser::error(string msg, Token* token) {
+
 }

@@ -6,6 +6,10 @@ class Print;
 class Var;
 class Block;
 class If;
+class While;
+class Function;
+class Wcall;
+class Return;
 
 class OprtStmt {
     public:
@@ -14,6 +18,10 @@ class OprtStmt {
         virtual Object oprtVar(Var* stmt) = 0;
         virtual Object oprtBlock(Block* stmt) = 0;
         virtual Object oprtIf(If* stmt) = 0;
+        virtual Object oprtWhile(While* stmt) = 0;
+        virtual Object oprtFunction(Function* stmt) = 0;
+        virtual Object oprtWcall(Wcall* stmt) = 0;
+        virtual Object oprtReturn(Return* stmt) = 0;
         virtual ~OprtStmt() noexcept(false) = default;
 };
 

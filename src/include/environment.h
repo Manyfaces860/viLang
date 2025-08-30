@@ -33,7 +33,12 @@ class Environment {
             return values[token.lexeme];
         }
 
-        
+        Object get(string& name) {
+            if (values.find(name) == values.end()) {
+                if (enclosing != nullptr) return enclosing->get(name);
+                throw RuntimeError("Undefined variable", name);
+            }
 
-
+            return values[name];
+        }
 };

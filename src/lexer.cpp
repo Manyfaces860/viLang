@@ -18,7 +18,7 @@ std::unordered_map<string, TokenType> Lexer::keywords = {
     {"elif",   TokenType::ELIF},
     {"false",  TokenType::FALSE},
     {"for",    TokenType::FOR},
-    {"fun",    TokenType::FUN},
+    {"def",    TokenType::DEF},
     {"if",     TokenType::IF},
     {"NOPE",    TokenType::NOPE},
     {"or",     TokenType::OR},
@@ -111,6 +111,7 @@ void Lexer::scanToken() {
         case '\t':
             break;
         case '\n':
+            if (tokens.size() > 0) while (tokens.back().type == TokenType::SPACE) tokens.pop_back();
             addToken(TokenType::NEW_LINE);
             hit = false;
             line++;

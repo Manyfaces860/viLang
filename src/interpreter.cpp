@@ -8,6 +8,8 @@
 #include "include/util.h"
 #include "include/stmt.h"
 #include "include/allstmt.h"
+#include "include/callables.h"
+#include "include/exception.h"
 
 
 using std::string, std::vector;
@@ -16,11 +18,21 @@ Interpreter::Interpreter() {}
 
 Interpreter::Interpreter(vector<Stmt*> program) {
     this->program = program;
+    setClock();
 }
 
 void Interpreter::interpret() {
     try {    
         for (Stmt* stmt : this->program) {
+            // print("h");
+            // if (Function* f = dynamic_cast<Function*>(stmt)) print("function");
+            // if (Block* f = dynamic_cast<Block*>(stmt)) print("block");
+            // if (If* f = dynamic_cast<If*>(stmt)) print("If");
+            // if (While* f = dynamic_cast<While*>(stmt)) print("While");
+            // if (Wcall* f = dynamic_cast<Wcall*>(stmt)) print("Wcall");
+            // if (Var* f = dynamic_cast<Var*>(stmt)) print("Var");
+            // if (Print* f = dynamic_cast<Print*>(stmt)) print("Print");
+            // if (Expression* f = dynamic_cast<Expression*>(stmt)) print("Expression");
             execute(stmt);
         }
     } catch (RuntimeError error) {
@@ -34,13 +46,13 @@ void Interpreter::execute(Stmt* stmt) {
 }
 
 Object Interpreter::oprtVariable(Variable* expr) {
-    return environment.get(*expr->name);
+    return this->globals->get(*expr->name);
 }
 
 Object Interpreter::oprtVar(Var* stmt) {
     Token* name = stmt->name;
     Object value = evaluate(stmt->initializer);
-    environment.define(name->lexeme, value);
+    globals->define(name->lexeme, value);
     return nullptr;
 }
 
@@ -49,11 +61,9 @@ Object Interpreter::oprtAssign(Assign* expr) {
 }
 
 Object Interpreter::oprtBlock(Block* stmt) {
-
     for (Stmt* statement : stmt->statements) {
         execute(statement);
     }
-
     return nullptr;
 }
 
@@ -61,16 +71,19 @@ Object Interpreter::oprtIf(If* stmt) {
     Object condition = evaluate(stmt->condition);
     if (isTruthy(condition)) {
         execute(stmt->thenBranch);
-        return nullptr;
     }
-    for (auto& [k, v] : stmt->elifBranches) {
-        Object elifCondition = evaluate(k);
-        if (isTruthy(elifCondition)) {
-            execute(v);
-            return nullptr;
+    else {
+        bool matched = false;
+        for (auto& [k, v] : stmt->elifBranches) {
+            Object elifCondition = evaluate(k);
+            if (isTruthy(elifCondition)) {
+                execute(v);
+                matched = true;
+                break;
+            }
         }
+        if (!matched && stmt->elseBranch != nullptr) execute(stmt->elseBranch);
     }
-    if (stmt->elseBranch != nullptr) execute(stmt->elseBranch);
     return nullptr;
 }
 
@@ -83,6 +96,38 @@ Object Interpreter::oprtLogical(Logical* expr) {
         if (isTruthy(left)) return isTruthy(left);
     }
     return isTruthy(evaluate(expr->right));
+}
+
+Object Interpreter::oprtWhile(While* stmt) {
+    while (isTruthy(evaluate(stmt->condition))) execute(stmt->body);
+    return nullptr;
+}
+
+Object Interpreter::oprtWcall(Wcall* stmt) {
+    return evaluate(stmt->callExpr);
+}
+
+Object Interpreter::oprtCall(Call* expr) {
+    Object callee = evaluate(expr->callee);
+    vector<Object> arguments;
+    for (Expr* arg : expr->arguments) arguments.push_back(evaluate(arg));
+    std::shared_ptr<Karanodak> function = getCallable(callee);
+    
+    Object value = nullptr;
+    value = function->__call__(this, &arguments);
+    return value;
+}
+
+Object Interpreter::oprtFunction(Function* stmt) {
+    std::shared_ptr<Karanodak> function = std::make_shared<ViFunction>(stmt, this->globals);
+    this->globals->define(stmt->name->lexeme, function);
+    return nullptr;
+}
+
+Object Interpreter::oprtReturn(Return* stmt) {
+    Object value = evaluate(stmt->value);
+    throw ReturnV(value);
+    return nullptr;
 }
 
 Object Interpreter::oprtPrint(Print* stmt) {
@@ -134,6 +179,12 @@ Object Interpreter::oprtBinary(Binary* expr) {
         case TokenType::GREATER_EQUAL:
             checkNumberOperands(*expr->operatorr, left, right);
             return getFloat(left) >= getFloat(right);
+        case TokenType::LESS:
+            checkNumberOperands(*expr->operatorr, left, right);
+            return getFloat(left) < getFloat(right);
+        case TokenType::LESS_EQUAL:
+            checkNumberOperands(*expr->operatorr, left, right);
+            return getFloat(left) <= getFloat(right);
         case TokenType::BANG_EQUAL: 
             return !isEqual(left, right);
         case TokenType::EQUAL_EQUAL:
@@ -201,4 +252,20 @@ void Interpreter::runInteractive(Stmt* stmt) {
     try { execute(stmt); }
     catch (RuntimeError error) { print(error.what()); }
     return;
+}
+
+Object Interpreter::getGlobal(Token* token) {
+    return this->globals->get(*token);
+}
+
+Environment* Interpreter::getGlobals() {
+    return this->globals;
+}
+
+void Interpreter::setEnvironment(Environment* scope) {
+    this->globals = scope;
+}
+
+void Interpreter::setClock() {
+    this->globals->define("clock", std::make_shared<Clock>());
 }

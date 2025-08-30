@@ -11,6 +11,8 @@ class Parser {
         vector<Token> tokens;
         int current = 0;
         int indent = 0;
+        int nextIndent = 0;
+        bool sameLevelBlockExit = false;
 
         Parser(vector<Token> tokens);
         Parser();
@@ -27,6 +29,9 @@ class Parser {
         Stmt* printStatement();
         Stmt* blockStatement();
         Stmt* ifStatement();
+        Stmt* whileStatement();
+        Stmt* functionStatement(string kind);
+        Stmt* returnStatement();
         Stmt* expressionStatement();
         Expr* expression();
         Expr* equality();
@@ -34,6 +39,8 @@ class Parser {
         Expr* term();
         Expr* factor();
         Expr* unary();
+        Expr* call();
+        Expr* finishCall(Expr* expr);
         Expr* primary();
         Token* consume(TokenType type, string message);
         void consume(TokenType type);
@@ -48,5 +55,6 @@ class Parser {
         bool isOnNextLine();
         vector<Stmt*> block();
         bool consumeSpacesAndNewLinesForTop();
+        void error(string msg, Token* token);
 
 };

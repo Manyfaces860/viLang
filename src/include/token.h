@@ -3,7 +3,6 @@
 #include <variant>
 #include <string>
 
-
 using std::string;
 
 enum class TokenType {
@@ -22,13 +21,15 @@ enum class TokenType {
   IDENTIFIER, STRING, NUMBER,
 
   // Keywords.
-  AND, CLASS, ELSE, ELIF, FALSE, FUN, FOR, IF, NOPE, OR,
+  AND, CLASS, ELSE, ELIF, FALSE, DEF, FOR, IF, NOPE, OR,
   PRINT, RETURN, SUPER, THIS, TRUE, WHILE, IN, IS,
 
   ENDOFFILE
 };
 
-using Object = std::variant<float, string, bool, nullptr_t>;
+class Karanodak;
+
+using Object = std::variant<float, string, bool, nullptr_t, std::shared_ptr<Karanodak>>;
 
 class Token {
 
@@ -79,7 +80,7 @@ class Token {
         case TokenType::ELSE: return "ELSE";
         case TokenType::ELIF: return "ELIF";
         case TokenType::FALSE: return "FALSE";
-        case TokenType::FUN: return "FUN";
+        case TokenType::DEF: return "DEF";
         case TokenType::FOR: return "FOR";
         case TokenType::IF: return "IF";
         case TokenType::NOPE: return "NOPE";

@@ -13,8 +13,19 @@ def main(description_file, oprt_class_name, base_class_name):
     header_file = filename + ".h"
     cpp_file = filename + ".cpp"
     
-    with open(description_file, "r") as file:
+    with open(description_file.split(':')[0], "r") as file:
         ft = {}
+        for line in file:
+            line = line.strip()
+
+            type_name, fields = line.split('##')
+            type_name = type_name.strip()
+            fields = fields.strip()
+            
+            ft[type_name] = fields
+            
+    with open(description_file.split(':')[1], "r") as file:
+        ft2 = {}
         for line in file:
             line = line.strip()
 
@@ -22,16 +33,21 @@ def main(description_file, oprt_class_name, base_class_name):
             type_name = type_name.strip()
             fields = fields.strip()
             
-            ft[type_name] = fields
+            ft2[type_name] = fields
             
     with open(f"src/include/{header_file}", "w") as file:
         print("#pragma once", file=file)
+        print("#include <string>")
+        print("#include <vector>")
         print("#include \"expr.h\"", file=file)
         print("#include \"token.h\"", file=file)
         print("#include \"allexpr.h\"", file=file)
+        print("#include \"oprtstmt.h\"", file=file)
+        print("#include \"stmt.h\"", file=file)
+        print("#include \"environment.h\"", file=file)
         print("", file=file)   
     
-        print(f"class {classname} : public Oprt " + "{", file=file)
+        print(f"class {classname} : public Oprt, " + "public OprtStmt " + "{", file=file)
         print("    public:", file=file)
         
         for type, _ in ft.items():

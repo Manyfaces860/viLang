@@ -6,21 +6,22 @@
 #include "allexpr.h"
 #include "oprtstmt.h"
 #include "stmt.h"
-#include "environment.h"
+
 
 using std::string, std::vector;
 
-class Interpreter : public Oprt, public OprtStmt {
+class Interpreter;
+
+class Resolver : public Oprt, public OprtStmt {
 
     vector<Stmt*> program;
-    Environment environment;
     
     public:
     
-        Interpreter();
-        Interpreter(vector<Stmt*> program);
+        Resolver();
+        Resolver(Interpreter* runtime);
 
-        void interpret();
+        void resolve();
 
         void execute(Stmt* stmt);
 
@@ -64,19 +65,12 @@ class Interpreter : public Oprt, public OprtStmt {
 
         Object getGlobal(Token* token);
 
-        Environment* getGlobals();
+        // void setClock();
 
-        void setEnvironment(Environment* scope);
-
-        void setClock();
-
-    private:
-        Environment* globals = &environment;
-
-        Object evaluate(Expr* expr);
-        bool isTruthy(const Object& obj);
-        bool isEqual(Object& left, Object& right);
-        void checkNumberOperands(Token& operatorr, Object& left, Object& right);
-        void checkNumberOperands(Token& operatorr, Object& right);
+        // Object evaluate(Expr* expr);
+        // bool isTruthy(const Object& obj);
+        // bool isEqual(Object& left, Object& right);
+        // void checkNumberOperands(Token& operatorr, Object& left, Object& right);
+        // void checkNumberOperands(Token& operatorr, Object& right);
 
 };

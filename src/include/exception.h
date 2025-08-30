@@ -36,4 +36,11 @@ class AstPrinterError : public CompileError {
 class RuntimeError : public std::runtime_error {
     public:
         explicit RuntimeError(const std::string& msg, const Token& token) : std::runtime_error(msg + " at line " + std::to_string(token.line) + " with token " + "'" + token.lexeme + "'") {}
+        explicit RuntimeError(const std::string& msg, const string& name) : std::runtime_error(msg + " at line " + " with token " + "'" + name + "'") {}
+};
+
+class ReturnV : public std::runtime_error {
+    public:
+        Object value;
+        explicit ReturnV(Object value) : std::runtime_error(""), value(std::move(value)) {}
 };

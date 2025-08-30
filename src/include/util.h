@@ -3,13 +3,20 @@
 #include <string>
 #include "token.h"
 #include "exception.h"
+#include "karanodak.h"
 
 using std::string;
 
-template <typename T>
 
-static void print(T thing) {
-    std::cout << thing << std::endl;
+template <typename T>
+void printOne(const T& value) {
+    std::cout << value << std::endl;
+}
+
+template <typename T, typename... Args>
+static void print(const T& first, const Args&... rest) {
+    printOne(first);
+    if constexpr (sizeof...(rest) > 0) print(rest...);
 }
 
 static string objectToString(const Object& obj) {
@@ -56,6 +63,13 @@ static bool getBool(const Object& obj) {
 }
 static nullptr_t getNull(const Object& obj) {
     return std::get<nullptr_t>(obj);
+}
+
+static std::shared_ptr<Karanodak> getCallable(const Object& obj) {
+    if (auto ptr = std::get_if<std::shared_ptr<Karanodak>>(&obj)) {
+        return *ptr;  // return the stored shared_ptr
+    }
+    throw RuntimeError("Object is not a callable!", getString(obj));
 }
 
 static string stripFloatZeroes(Object& num) {

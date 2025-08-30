@@ -1,7 +1,10 @@
 #pragma once
+#include <vector>
 #include "expr.h"
 #include "token.h"
 #include "oprt.h"
+
+using std::vector;
 
 class Ternary : public Expr {
     public:
@@ -88,6 +91,18 @@ class Logical : public Expr {
         Logical(Expr* left, Token* operatorr, Expr* right) : left(left), operatorr(operatorr), right(right) {}
         Object accept(Oprt* oprt) override {
             return oprt->oprtLogical(this);
+        }
+};
+
+class Call : public Expr {
+    public:
+        Expr* callee;
+        Token* paren;
+        vector<Expr*> arguments;
+
+        Call(Expr* callee, Token* paren, vector<Expr*> arguments) : callee(callee), paren(paren), arguments(arguments) {}
+        Object accept(Oprt* oprt) override {
+            return oprt->oprtCall(this);
         }
 };
 

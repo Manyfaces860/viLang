@@ -48,12 +48,56 @@ class If : public Stmt {
     public:
         Expr* condition;
         Stmt* thenBranch;
-        std::vector<std::pair<Expr*, Stmt*>> elifBranches;
+        std::vector<std::pair<Expr*,Stmt*>> elifBranches;
         Stmt* elseBranch;
 
-        If(Expr* condition, Stmt* thenBranch, std::vector<std::pair<Expr*, Stmt*>> elifBranches, Stmt* elseBranch) : condition(condition), thenBranch(thenBranch), elifBranches(elifBranches), elseBranch(elseBranch) {}
+        If(Expr* condition, Stmt* thenBranch, std::vector<std::pair<Expr*,Stmt*>> elifBranches, Stmt* elseBranch) : condition(condition), thenBranch(thenBranch), elifBranches(elifBranches), elseBranch(elseBranch) {}
         Object accept(OprtStmt* oprt) override {
             return oprt->oprtIf(this);
+        }
+};
+
+class While : public Stmt {
+    public:
+        Expr* condition;
+        Stmt* body;
+
+        While(Expr* condition, Stmt* body) : condition(condition), body(body) {}
+        Object accept(OprtStmt* oprt) override {
+            return oprt->oprtWhile(this);
+        }
+};
+
+class Function : public Stmt {
+    public:
+        Token* name;
+        vector<Token*> parameters;
+        Stmt* body;
+
+        Function(Token* name, vector<Token*> parameters, Stmt* body) : name(name), parameters(parameters), body(body) {}
+        Object accept(OprtStmt* oprt) override {
+            return oprt->oprtFunction(this);
+        }
+};
+
+class Wcall : public Stmt {
+    public:
+        Expr* callExpr;
+
+        Wcall(Expr* callExpr) : callExpr(callExpr) {}
+        Object accept(OprtStmt* oprt) override {
+            return oprt->oprtWcall(this);
+        }
+};
+
+class Return : public Stmt {
+    public:
+        Token* keyword;
+        Expr* value;
+
+        Return(Token* keyword, Expr* value) : keyword(keyword), value(value) {}
+        Object accept(OprtStmt* oprt) override {
+            return oprt->oprtReturn(this);
         }
 };
 
