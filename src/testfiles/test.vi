@@ -1,10 +1,10 @@
-class Radha:
+class Myself:
     def __init__(self):
-        self.name = "radha rani"
-        self.age = 8
+        self.name = "abhishek"
+        self.age = 22
 
     def met(this):
-        print("heelo kishori ju")
+        print("heelo myself")
         print(this.name)
         print(this.age)
 
@@ -15,14 +15,14 @@ class Radha:
 
         return local
     def some(abc):
-        print("heelo from some static method")
+        print("hello from some static method")
 
-robj = Radha()
-robj.age = 12
+robj = Myself()
+robj.age = 21
 
 play = robj.play
 callback = play()
 callback()
 callback()
 
-Radha.some(23)
+Myself.some(23)
