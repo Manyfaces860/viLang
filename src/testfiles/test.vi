@@ -1,18 +1,28 @@
-def make_counter():
-    i = 0
-    def count():
-        i = i + 1
-        print(i)
-        return
+class Radha:
+    def __init__(self):
+        self.name = "radha rani"
+        self.age = 8
 
-    return count
+    def met(this):
+        print("heelo kishori ju")
+        print(this.name)
+        print(this.age)
 
-counter = make_counter()
-counter()
-counter()
-counter()
-counter()
-counter()
-counter()
-counter()
 
+    def play(self):
+        def local():
+            print("its a local function callback")
+
+        return local
+    def some(abc):
+        print("heelo from some static method")
+
+robj = Radha()
+robj.age = 12
+
+play = robj.play
+callback = play()
+callback()
+callback()
+
+Radha.some(23)

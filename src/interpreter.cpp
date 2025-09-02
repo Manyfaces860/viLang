@@ -8,7 +8,9 @@
 #include "include/util.h"
 #include "include/stmt.h"
 #include "include/allstmt.h"
-#include "include/callables.h"
+#include "include/implemented.h"
+#include "include/objects.h"
+#include "include/library.h"
 #include "include/exception.h"
 
 
@@ -103,23 +105,23 @@ Object Interpreter::oprtWhile(While* stmt) {
     return nullptr;
 }
 
-Object Interpreter::oprtWcall(Wcall* stmt) {
-    return evaluate(stmt->callExpr);
+Object Interpreter::oprtWrapper(Wrapper* stmt) {
+    return evaluate(stmt->expr);
 }
 
 Object Interpreter::oprtCall(Call* expr) {
     Object callee = evaluate(expr->callee);
     vector<Object> arguments;
     for (Expr* arg : expr->arguments) arguments.push_back(evaluate(arg));
-    std::shared_ptr<Karanodak> function = getCallable(callee);
+    std::shared_ptr<ViCallable> callable = getCallable(callee);
     
     Object value = nullptr;
-    value = function->__call__(this, &arguments);
+    value = callable->__call__(this, &arguments);
     return value;
 }
 
 Object Interpreter::oprtFunction(Function* stmt) {
-    std::shared_ptr<Karanodak> function = std::make_shared<ViFunction>(stmt, this->globals);
+    std::shared_ptr<ViCallable> function = std::make_shared<ViFunction>(stmt, this->globals, false);
     this->globals->define(stmt->name->lexeme, function);
     return nullptr;
 }
@@ -130,9 +132,50 @@ Object Interpreter::oprtReturn(Return* stmt) {
     return nullptr;
 }
 
+Object Interpreter::oprtClass(Class* stmt) {
+    std::unordered_map<string, Object> methods;
+    for (Function* method : stmt->methods) {
+        std::shared_ptr<ViCallable> callableMethod = std::make_shared<ViFunction>(method, this->globals, true);
+        methods.insert({method->name->lexeme, callableMethod});
+    }
+
+    std::shared_ptr<ViCallable> klass = std::make_shared<ViClass>(stmt->name->lexeme, methods);
+    this->globals->define(stmt->name->lexeme, klass);
+    return nullptr;
+}
+
+Object Interpreter::oprtGet(Get* expr) {
+    Object instObj = evaluate(expr->property);
+
+    if ( isCallable(instObj) ) {
+        if (std::shared_ptr<ViClass> klass = std::dynamic_pointer_cast<ViClass>(getCallable(instObj))) {
+            Object method = klass->__find_method__(expr->name->lexeme);
+            if (!isNull(method)) return method;
+            else throw RuntimeError("no method found on class", *expr->name);
+        } else throw RuntimeError("cannot access properties/methods on a function", *expr->name);
+    }
+
+    std::shared_ptr<Karanodak> instanceBase = getObject(instObj);
+    if ( std::shared_ptr<ViInstance> instance = std::dynamic_pointer_cast<ViInstance>(instanceBase) ) {
+        return instance->__get__(expr->name);
+    } else throw RuntimeError("only instances have properties", *expr->name);
+    return nullptr;
+}
+
+Object Interpreter::oprtSet(Set* expr) {
+    Object instObj = evaluate(expr->property);
+    std::shared_ptr<Karanodak> instanceBase = getObject(instObj);
+    if (std::shared_ptr<ViInstance> instance = std::dynamic_pointer_cast<ViInstance>(instanceBase)) {
+        instance->__set__(expr->name->lexeme, evaluate(expr->value));
+    } else throw RuntimeError("only instances are allowed for setting properties", *expr->name);
+    return nullptr;
+}
+
 Object Interpreter::oprtPrint(Print* stmt) {
     Object value = evaluate(stmt->expression);
     if (isFloat(value)) print(stripFloatZeroes(value));
+    else if (isCallable(value)) print(getString(getCallable(value)->__repr__()));
+    else if (isKaranodak(value)) print(getString(getObject(value)->__repr__()));
     else print(objectToString(value));
     return nullptr;
 }
@@ -267,5 +310,6 @@ void Interpreter::setEnvironment(Environment* scope) {
 }
 
 void Interpreter::setClock() {
-    this->globals->define("clock", std::make_shared<Clock>());
+    std::shared_ptr<ViCallable> clock = std::make_shared<Clock>();
+    this->globals->define("clock", clock);
 }

@@ -54,13 +54,19 @@ class Interpreter : public Oprt, public OprtStmt {
 
         Object oprtWhile(While* stmt) override;
 
-        Object oprtWcall(Wcall* stmt) override;
+        Object oprtWrapper(Wrapper* stmt) override;
 
         Object oprtCall(Call* stmt) override;
 
         Object oprtFunction(Function* stmt) override;
 
         Object oprtReturn(Return* stmt) override;
+
+        Object oprtClass(Class* stmt) override;
+
+        Object oprtGet(Get* expr) override;
+
+        Object oprtSet(Set* expr) override;
 
         Object getGlobal(Token* token);
 

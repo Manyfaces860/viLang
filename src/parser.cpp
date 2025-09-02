@@ -32,9 +32,7 @@ Stmt* Parser::declaration() {
             if (Assign* assignExpr = dynamic_cast<Assign*>(expr)) {
                 return new Var(assignExpr->name, assignExpr->value);
             }
-            if (Call* callExpr = dynamic_cast<Call*>(expr)) {
-                return new Wcall(callExpr);
-            }
+            return new Wrapper(expr);
         }
         return statement();
     } catch (ParserError error) {
@@ -58,6 +56,9 @@ Expr* Parser::assignment() {
         if (Variable* identifier = dynamic_cast<Variable*>(expr)) {
             Token* name = identifier->name;
             if (isOnNextLine()) return new Assign(name, value);
+            else throw ParserError("Expected newline or end of file or statements should be seperated by newline.", *peek());
+        } else if (Get* getter = dynamic_cast<Get*>(expr)) {
+            if (isOnNextLine()) return new Set(getter->property, getter->name, value);
             else throw ParserError("Expected newline or end of file or statements should be seperated by newline.", *peek());
         }
         throw ParserError("Invalid assignment target.", *equals);
@@ -96,6 +97,7 @@ Stmt* Parser::statement() {
     if (match(TokenType::WHILE)) return whileStatement();
     if (match(TokenType::DEF)) return functionStatement("function");
     if (match(TokenType::RETURN)) return returnStatement();
+    if (match(TokenType::CLASS)) return classStatement();
 
     return expressionStatement();
 }
@@ -201,6 +203,18 @@ Stmt* Parser::returnStatement() {
     return nullptr;
 }
 
+Stmt* Parser::classStatement() {
+    Token* name = consume(TokenType::IDENTIFIER, "Expected an class name");
+    consume(TokenType::COLON, "Expected a ':' after class name");
+
+    vector<Stmt*> methods = block();
+    vector<Function*> functionMethods;
+    for (Stmt* method : methods) {
+        functionMethods.push_back(dynamic_cast<Function*>(method));
+    }
+    return new Class(name, functionMethods);
+}
+
 Stmt* Parser::expressionStatement() {
     Expr* expr = expression();
     if (isOnNextLine()) return new Expression(expr);
@@ -282,6 +296,9 @@ Expr* Parser::call() {
     while (true) { 
         if (match(TokenType::LEFT_PAREN)) {
             expr = finishCall(expr);
+        } else if (match(TokenType::DOT)) {
+            Token* name = consume(TokenType::IDENTIFIER, "Expected a property name after '.'");
+            expr = new Get(expr, name);
         } else {
             break;
         }  

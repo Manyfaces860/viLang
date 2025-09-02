@@ -10,6 +10,8 @@ class Variable;
 class Assign;
 class Logical;
 class Call;
+class Get;
+class Set;
 
 class Oprt {
     public:
@@ -22,6 +24,8 @@ class Oprt {
         virtual Object oprtAssign(Assign* expr) = 0;
         virtual Object oprtLogical(Logical* expr) = 0;
         virtual Object oprtCall(Call* expr) = 0;
+        virtual Object oprtGet(Get* expr) = 0;
+        virtual Object oprtSet(Set* expr) = 0;
         virtual ~Oprt() noexcept(false) = default;
 };
 

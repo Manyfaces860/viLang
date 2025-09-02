@@ -106,3 +106,26 @@ class Call : public Expr {
         }
 };
 
+class Get : public Expr {
+    public:
+        Expr* property;
+        Token* name;
+
+        Get(Expr* property, Token* name) : property(property), name(name) {}
+        Object accept(Oprt* oprt) override {
+            return oprt->oprtGet(this);
+        }
+};
+
+class Set : public Expr {
+    public:
+        Expr* property;
+        Token* name;
+        Expr* value;
+
+        Set(Expr* property, Token* name, Expr* value) : property(property), name(name), value(value) {}
+        Object accept(Oprt* oprt) override {
+            return oprt->oprtSet(this);
+        }
+};
+

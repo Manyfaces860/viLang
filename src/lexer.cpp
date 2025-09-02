@@ -25,7 +25,6 @@ std::unordered_map<string, TokenType> Lexer::keywords = {
     {"print",  TokenType::PRINT},
     {"return", TokenType::RETURN},
     {"super",  TokenType::SUPER},
-    {"this",   TokenType::THIS},
     {"true",   TokenType::TRUE},
     {"while",  TokenType::WHILE},
     {"in",     TokenType::IN},

@@ -3,7 +3,7 @@
 #include <string>
 #include "token.h"
 #include "exception.h"
-#include "karanodak.h"
+#include "objects.h"
 
 using std::string;
 
@@ -33,7 +33,7 @@ static string objectToString(const Object& obj) {
         return "NOPE";
     }
     
-    throw AstPrinterError("Unknown object type");
+    throw RuntimeError("Unknown object type", "");
 }
 
 static bool isFloat(const Object& obj) {
@@ -52,6 +52,14 @@ static bool isNull(const Object& obj) {
     return std::holds_alternative<nullptr_t>(obj);
 }
 
+static bool isKaranodak(const Object& obj) {
+    return std::holds_alternative<std::shared_ptr<Karanodak>>(obj);
+}
+
+static bool isCallable(const Object& obj) {
+    return std::holds_alternative<std::shared_ptr<ViCallable>>(obj);
+}
+
 static float getFloat(const Object& obj) {
     return std::get<float>(obj);
 }
@@ -65,11 +73,17 @@ static nullptr_t getNull(const Object& obj) {
     return std::get<nullptr_t>(obj);
 }
 
-static std::shared_ptr<Karanodak> getCallable(const Object& obj) {
-    if (auto ptr = std::get_if<std::shared_ptr<Karanodak>>(&obj)) {
+static std::shared_ptr<ViCallable> getCallable(const Object& obj) {
+    if (auto ptr = std::get_if<std::shared_ptr<ViCallable>>(&obj)) {
         return *ptr;  // return the stored shared_ptr
     }
     throw RuntimeError("Object is not a callable!", getString(obj));
+}
+static std::shared_ptr<Karanodak> getObject(const Object& obj) {
+    if (auto ptr = std::get_if<std::shared_ptr<Karanodak>>(&obj)) {
+        return *ptr;  // return the stored shared_ptr
+    }
+    throw RuntimeError("Object is not Karnodak!", getString(obj));
 }
 
 static string stripFloatZeroes(Object& num) {

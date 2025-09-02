@@ -8,8 +8,9 @@ class Block;
 class If;
 class While;
 class Function;
-class Wcall;
+class Wrapper;
 class Return;
+class Class;
 
 class OprtStmt {
     public:
@@ -20,8 +21,9 @@ class OprtStmt {
         virtual Object oprtIf(If* stmt) = 0;
         virtual Object oprtWhile(While* stmt) = 0;
         virtual Object oprtFunction(Function* stmt) = 0;
-        virtual Object oprtWcall(Wcall* stmt) = 0;
+        virtual Object oprtWrapper(Wrapper* stmt) = 0;
         virtual Object oprtReturn(Return* stmt) = 0;
+        virtual Object oprtClass(Class* stmt) = 0;
         virtual ~OprtStmt() noexcept(false) = default;
 };
 

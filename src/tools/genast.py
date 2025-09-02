@@ -36,7 +36,8 @@ def main(baseClass, descriptionFile, outputFile, operator_file, astFile):
         
     # creates concreate implementations of base class
     with open(outputFile, "w") as file:
-        print("#pragma once", file=file)        
+        print("#pragma once", file=file)
+        print("#include <vector>", file=file)
         print(f"#include \"{baseClass.lower()}.h\"", file=file)
         print("#include \"token.h\"", file=file)
         if baseClass == "Expr":
@@ -44,6 +45,7 @@ def main(baseClass, descriptionFile, outputFile, operator_file, astFile):
         else:
             print(f"#include \"oprt{baseClass.lower()}.h\"", file=file)
 
+        print("using std::vector;", file=file)
         print("", file=file)
         
         for type, field in ft.items():

@@ -22,14 +22,15 @@ enum class TokenType {
 
   // Keywords.
   AND, CLASS, ELSE, ELIF, FALSE, DEF, FOR, IF, NOPE, OR,
-  PRINT, RETURN, SUPER, THIS, TRUE, WHILE, IN, IS,
+  PRINT, RETURN, SUPER, TRUE, WHILE, IN, IS,
 
   ENDOFFILE
 };
 
 class Karanodak;
+class ViCallable;
 
-using Object = std::variant<float, string, bool, nullptr_t, std::shared_ptr<Karanodak>>;
+using Object = std::variant<float, string, bool, nullptr_t, std::shared_ptr<Karanodak>, std::shared_ptr<ViCallable>>;
 
 class Token {
 
@@ -88,7 +89,6 @@ class Token {
         case TokenType::PRINT: return "PRINT";
         case TokenType::RETURN: return "RETURN";
         case TokenType::SUPER: return "SUPER";
-        case TokenType::THIS: return "THIS";
         case TokenType::TRUE: return "TRUE";
         case TokenType::WHILE: return "WHILE";
         case TokenType::IN: return "IN";

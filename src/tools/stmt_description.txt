@@ -5,5 +5,6 @@ Block      ## vector<Stmt*> statements
 If         ## Expr* condition|| Stmt* thenBranch|| std::vector<std::pair<Expr*,Stmt*>> elifBranches|| Stmt* elseBranch
 While      ## Expr* condition|| Stmt* body
 Function   ## Token* name|| vector<Token*> parameters|| Stmt* body
-Wcall      ## Expr* callExpr
+Wrapper    ## Expr* expr
 Return     ## Token* keyword|| Expr* value
+Class      ## Token* name|| std::vector<Function*> methods

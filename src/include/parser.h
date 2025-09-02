@@ -32,6 +32,7 @@ class Parser {
         Stmt* whileStatement();
         Stmt* functionStatement(string kind);
         Stmt* returnStatement();
+        Stmt* classStatement();
         Stmt* expressionStatement();
         Expr* expression();
         Expr* equality();

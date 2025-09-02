@@ -1,7 +1,9 @@
 #pragma once
+#include <vector>
 #include "stmt.h"
 #include "token.h"
 #include "oprtstmt.h"
+using std::vector;
 
 class Expression : public Stmt {
     public:
@@ -80,13 +82,13 @@ class Function : public Stmt {
         }
 };
 
-class Wcall : public Stmt {
+class Wrapper : public Stmt {
     public:
-        Expr* callExpr;
+        Expr* expr;
 
-        Wcall(Expr* callExpr) : callExpr(callExpr) {}
+        Wrapper(Expr* expr) : expr(expr) {}
         Object accept(OprtStmt* oprt) override {
-            return oprt->oprtWcall(this);
+            return oprt->oprtWrapper(this);
         }
 };
 
@@ -98,6 +100,17 @@ class Return : public Stmt {
         Return(Token* keyword, Expr* value) : keyword(keyword), value(value) {}
         Object accept(OprtStmt* oprt) override {
             return oprt->oprtReturn(this);
+        }
+};
+
+class Class : public Stmt {
+    public:
+        Token* name;
+        std::vector<Function*> methods;
+
+        Class(Token* name, std::vector<Function*> methods) : name(name), methods(methods) {}
+        Object accept(OprtStmt* oprt) override {
+            return oprt->oprtClass(this);
         }
 };
 
